@@ -2,14 +2,15 @@ AS = nasm
 
 all: boot.img
 
-boot.img: boot.bin
+boot.img: boot.bin loader.bin
 	dd if=boot.bin of=boot.img bs=512 count=1 conv=notrunc
+	dd if=loader.bin of=boot.img bs=512 count=5 seek=1 conv=notrunc
 
-boot.bin: boot.asm
-	$(AS) -f bin -o boot.bin boot.asm
+%.bin: %.asm
+	$(AS) -f bin -o $@ $<
 
 run:
 	bochs -f bochsrc.txt
 
 clean:
-	rm boot.bin
+	rm *.bin
