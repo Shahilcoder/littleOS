@@ -2,6 +2,19 @@
 [ORG 0x7e00]
 
 start:
+    mov [DriveId], dl
+    mov eax, 0x80000000
+    cpuid
+    cmp eax, 0x80000001
+    jb NotSupport
+
+    mov eax, 0x80000001 ; ask for processor features
+    cpuid
+    test edx, (1<<29)
+    jz NotSupport
+    test edx, (1<<26)
+    jz NotSupport
+
     ; print message for now
     mov ah, 0x13
     mov al, 1
@@ -11,10 +24,13 @@ start:
     mov cx, MessageLen
     int 0x10
 
+NotSupport:
 End:
     hlt
     jmp End
 
+DriveId:
+    db 0
 Message:
-    db "Loader starts"
+    db "Long mode is supported"
 MessageLen equ $-Message
