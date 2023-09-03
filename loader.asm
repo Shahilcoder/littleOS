@@ -70,14 +70,25 @@ TestA20:
 SetA20LineDone:
     xor ax, ax
     mov es, ax
-    
-    mov ah, 0x13
-    mov al, 1
-    mov bx, 0xa
-    xor dx, dx
-    mov bp, Message
-    mov cx, MessageLen
+
+SetVideoMode:
+    mov ax, 3
     int 0x10
+
+    mov si, Message
+    mov ax, 0xb800
+    mov es, ax
+    xor di, di
+    mov cx, MessageLen
+
+PrintMessage:
+    mov al, [si]
+    mov [es:di], al
+    mov byte[es:di+1], 0xa
+
+    add di, 2
+    add si, 1
+    loop PrintMessage ; cx register as the counter
 
 ReadError:
 NotSupport:
@@ -88,7 +99,7 @@ End:
 DriveId:
     db 0
 Message:
-    db "A20 line is on"
+    db "Text mode is set"
 MessageLen equ $-Message
 ReadPacket:
     times 16 db 0
