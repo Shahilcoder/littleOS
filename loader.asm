@@ -57,6 +57,28 @@ GetMemDone:
     mov cx, MessageLen
     int 0x10
 
+TestA20:
+    mov ax, 0xffff
+    mov es, ax
+    mov word[ds:0x7c00], 0xa200 ; random number
+    cmp word[es:0x7c10], 0xa200
+    jne SetA20LineDone
+    mov word[ds:0x7c00], 0xb200 ; second random number
+    cmp word[es:0x7c10], 0xb200
+    je End
+
+SetA20LineDone:
+    xor ax, ax
+    mov es, ax
+    
+    mov ah, 0x13
+    mov al, 1
+    mov bx, 0xa
+    xor dx, dx
+    mov bp, Message
+    mov cx, MessageLen
+    int 0x10
+
 ReadError:
 NotSupport:
 End:
@@ -66,7 +88,7 @@ End:
 DriveId:
     db 0
 Message:
-    db "Get memory info done"
+    db "A20 line is on"
 MessageLen equ $-Message
 ReadPacket:
     times 16 db 0
